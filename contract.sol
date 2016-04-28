@@ -27,28 +27,31 @@ contract Channel {
     }
 
     // verify a message (receipient || value) with the provided signature
-    function verify(uint channel, address recipient, uint value, uint8 v, bytes32 r, bytes32 s) constant returns(bool) {
+    function verify(uint channel, uint value, uint8 v, bytes32 r, bytes32 s) constant returns(bool) {
         PaymentChannel ch = channels[channel];
-        return ch.valid && ch.expiry > block.timestamp && ch.receiver == recipient && ch.sender == ecrecover(getHash(channel, recipient, value), v, r, s);
+        return ch.valid && ch.expiry > block.timestamp && ch.sender == ecrecover(getHash(channel, recipient, value), v, r, s);
     }
 
     // claim funds
-    function claim(uint channel, address recipient, uint value, uint8 v, bytes32 r, bytes32 s) {
-        if( !verify(channel, recipient, value, v, r, s) ) return;
+    function claim(uint channel, uint value, uint8 v, bytes32 r, bytes32 s) {
+        if( !verify(channel, value, v, r, s) ) return;
 
         PaymentChannel ch = channels[channel];
+
+        if (msg.sender != ch.receiver) throw;
+
         if( value > ch.value ) {
-            recipient.send(ch.value);
+            ch.receiver.send(ch.value);
             ch.value = 0;
         } else {
-            recipient.send(value);
+            ch.receiver.recipient.send(value);
             ch.value -= value;
         }
 
         // channel is no longer valid
         channels[channel].valid = false;
 
-        Claim(recipient, channel);
+        Claim(ch.receiver, channel);
     }
 
     function deposit(uint channel) {
