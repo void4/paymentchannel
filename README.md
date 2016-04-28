@@ -3,7 +3,7 @@
 This is an improved implementation of the https://github.com/obscuren/whisper-payment-channel contract.
 
 Changelog:
-- renamed owner and beneficiary to sender and receiver
+- renamed owner and beneficiary to sender and receiver, validUntil to expiry
 - to avoid sender using one channel for different receivers, added an address field to the payment channel data structure
 - included the channel contracts address in getHash, to prevent reuse of signatures in a new contract instance
 

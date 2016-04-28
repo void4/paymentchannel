@@ -4,7 +4,7 @@ contract Channel {
         address sender;
         address receiver;
         uint256 value;
-        uint256 validUntil;
+        uint256 expiry;
 
         bool valid;
     }
@@ -36,7 +36,7 @@ contract Channel {
     // verify a message (receipient || value) with the provided signature
     function verify(uint channel, address recipient, uint value, uint8 v, bytes32 r, bytes32 s) constant returns(bool) {
         PaymentChannel ch = channels[channel];
-        return ch.valid && ch.validUntil > block.timestamp && ch.receiver == recipient && ch.sender == ecrecover(getHash(channel, recipient, value), v, r, s);
+        return ch.valid && ch.expiry > block.timestamp && ch.receiver == recipient && ch.sender == ecrecover(getHash(channel, recipient, value), v, r, s);
     }
 
     // claim funds
@@ -70,7 +70,7 @@ contract Channel {
     // reclaim a channel
     function reclaim(uint channel) {
         PaymentChannel ch = channels[channel];
-        if( ch.value > 0 && ch.validUntil < block.timestamp ) {
+        if( ch.value > 0 && ch.expiry < block.timestamp ) {
             ch.sender.send(ch.value);
             delete channels[channel];
         }
@@ -88,11 +88,12 @@ contract Channel {
         return channels[channel].receiver;
     }
 
-    function  getChannelValidUntil(uint channel) constant returns(uint) {
-        return channels[channel].validUntil;
+    function  getChannelExpiry(uint channel) constant returns(uint) {
+        return channels[channel].expiry;
     }
+
     function isValidChannel(uint channel) constant returns(bool) {
         PaymentChannel ch = channels[channel];
-        return ch.valid && ch.validUntil >= block.timestamp;
+        return ch.valid && ch.expiry >= block.timestamp;
     }
 }
