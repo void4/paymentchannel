@@ -23,13 +23,13 @@ contract Channel {
 
     // creates a hash using the recipient and value.
     function getHash(uint channel, uint value) constant returns(bytes32) {
-        return sha3(address(this), channel, channels[channel].receiver, value);
+        return sha3(address(this), channel, value);
     }
 
     // verify a message (receipient || value) with the provided signature
     function verify(uint channel, uint value, uint8 v, bytes32 r, bytes32 s) constant returns(bool) {
         PaymentChannel ch = channels[channel];
-        return ch.valid && ch.expiry > block.timestamp && ch.sender == ecrecover(getHash(channel, ch.receiver, value), v, r, s);
+        return ch.valid && ch.expiry > block.timestamp && ch.sender == ecrecover(getHash(channel, value), v, r, s);
     }
 
     // claim funds
