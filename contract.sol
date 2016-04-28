@@ -10,23 +10,15 @@ contract Channel {
     }
 
     PaymentChannel[] public channels;
-    uint id;
 
     event NewChannel(address indexed sender, address indexed receiver, uint channel);
     event Deposit(address indexed sender, address indexed receiver, uint channel);
     event Claim(address indexed who, uint indexed channel);
     event Reclaim(bytes32 indexed channel);
 
-    function Channel() {
-        id = 0;
-    }
-
     function createChannel(address receiver, uint256 expiry) {
-        
-        channels[id] = PaymentChannel(msg.sender, receiver, msg.value, expiry, true);
-        NewChannel(msg.sender, receiver, id);
-        
-        id++;
+        channels.push(PaymentChannel(msg.sender, receiver, msg.value, expiry, true));
+        NewChannel(msg.sender, receiver, channels.length);
     }
 
     // creates a hash using the recipient and value.
