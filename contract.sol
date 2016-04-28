@@ -9,7 +9,7 @@ contract Channel {
         bool valid;
     }
 
-    mapping(uint => PaymentChannel) public channels;
+    PaymentChannel[] public channels;
     uint id;
 
     event NewChannel(address indexed sender, address indexed receiver, uint channel);
@@ -18,7 +18,7 @@ contract Channel {
     event Reclaim(bytes32 indexed channel);
 
     function Channel() {
-        id = 0;
+        id = -1;
     }
 
     function createChannel(address receiver, uint256 expiry) {
@@ -74,22 +74,6 @@ contract Channel {
             ch.sender.send(ch.value);
             delete channels[channel];
         }
-    }
-
-    function getChannelValue(uint channel) constant returns(uint256) {
-        return channels[channel].value;
-    }
-
-    function getChannelSender(uint channel) constant returns(address) {
-        return channels[channel].sender;
-    }
-
-    function getChannelReceiver(uint channel) constant returns(address) {
-        return channels[channel].receiver;
-    }
-
-    function  getChannelExpiry(uint channel) constant returns(uint) {
-        return channels[channel].expiry;
     }
 
     function isValidChannel(uint channel) constant returns(bool) {
