@@ -33,12 +33,22 @@ result = {
 }
 
 import json
+import six
 # res should be amended with payment channel info (just opened/updated/reclaim etc. and channel id, value)
-header = web3.fromUtf8(json.dumps(result))[2:]
+header = json.dumps(result)
+#header = web3.fromUtf8(header)[2:]
+import base64
+if six.PY3:
+    header = header.encode("utf8")
+header = base64.b64encode(header)
 print(header)
-header = web3.toUtf8(header)
+print(len(header))
+#header = web3.toUtf8(header)
+header = base64.b64decode(header)
+if six.PY3:
+    header = header.decode("utf8")
 result = json.loads(header)
 print(json.dumps(result, sort_keys=True, indent=4, separators=(',', ': ')))
 
-v = contract.verify(channelid, value, res["v"], res["r"], res["s"])
+v = contract.verify(channelid, value, header["signature"]["v"], header["signature"]["r"], header["signature"]["s"])
 print(v)
