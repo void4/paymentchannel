@@ -22,8 +22,8 @@ contract Channel {
     }
 
     // creates a hash using the recipient and value.
-    function getHash(uint channel, address recipient, uint value) constant returns(bytes32) {
-        return sha3(address(this), channel, recipient, value);
+    function getHash(uint channel, uint value) constant returns(bytes32) {
+        return sha3(address(this), channel, channels[channel].receiver, value);
     }
 
     // verify a message (receipient || value) with the provided signature
