@@ -29,7 +29,7 @@ contract Channel {
     // verify a message (receipient || value) with the provided signature
     function verify(uint channel, uint value, uint8 v, bytes32 r, bytes32 s) constant returns(bool) {
         PaymentChannel ch = channels[channel];
-        return ch.valid && ch.expiry > block.timestamp && ch.sender == ecrecover(getHash(channel, recipient, value), v, r, s);
+        return ch.valid && ch.expiry > block.timestamp && ch.sender == ecrecover(getHash(channel, ch.receiver, value), v, r, s);
     }
 
     // claim funds
@@ -44,7 +44,7 @@ contract Channel {
             ch.receiver.send(ch.value);
             ch.value = 0;
         } else {
-            ch.receiver.recipient.send(value);
+            ch.receiver.send(value);
             ch.value -= value;
         }
 
