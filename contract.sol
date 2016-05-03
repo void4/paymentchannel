@@ -16,9 +16,14 @@ contract Channel {
     event Claim(address indexed who, uint indexed channel);
     event Reclaim(bytes32 indexed channel);
 
-    function createChannel(address receiver, uint256 expiry) {
+    function createChannel(address receiver, uint256 expiry) returns (uint channel) {
         channels.push(PaymentChannel(msg.sender, receiver, msg.value, expiry, true));
-        NewChannel(msg.sender, receiver, channels.length);
+        NewChannel(msg.sender, receiver, channels.length - 1);
+        return channels.length - 1;
+    }
+    
+    function channelCount() constant returns (uint) {
+        return channels.length;
     }
 
     // creates a hash using the recipient and value.
@@ -27,7 +32,7 @@ contract Channel {
     }
 
     // verify a message (receipient || value) with the provided signature
-    function verify(uint channel, uint value, uint8 v, bytes32 r, bytes32 s) constant returns(bool) {
+    function verify(uint channel, uint value, uint8 v, bytes32 r, bytes32 s) constant returns (bool) {
         PaymentChannel ch = channels[channel];
         return ch.valid && ch.expiry > block.timestamp && ch.sender == ecrecover(getHash(channel, value), v, r, s);
     }
@@ -52,7 +57,7 @@ contract Channel {
         channels[channel].valid = false;
 
         Claim(ch.receiver, channel);
-    }
+    }   
 
     function deposit(uint channel) {
         if( !isValidChannel(channel) ) throw;
