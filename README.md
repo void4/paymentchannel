@@ -1,5 +1,7 @@
 ## Ethereum payment channels for Python
 
+![Example](example.png)
+
 This is an improved implementation of the https://github.com/obscuren/whisper-payment-channel contract.
 
 Changelog:
